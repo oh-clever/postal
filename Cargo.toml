@@ -1,0 +1,26 @@
+[package]
+name = "postal"
+version = "1.0.0"
+edition = "2024"
+
+[profile.size-optimized]
+inherits = "release"
+opt-level = 's'     # Optimize for size
+lto = true          # Enable link-time optimization
+codegen-units = 1   # Reduce number of codegen units to increase optimizations
+panic = 'abort'     # Abort on panic
+strip = true        # Strip symbols from binary
+
+[dependencies.axum]
+version = "0.8.8"
+features = ["form", "macros", "multipart"]
+
+[dependencies.serde]
+version = "1.0.228"
+
+[dependencies.tempfile]
+version = "3"
+
+[dependencies.tokio]
+version = "1.0"
+features = ["full", "test-util"]

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+KEY1="$1"
+KEY2_1="$2"
+KEY2_2="$3"
+
+echo "200"
+echo "Content-Type: text/plain"
+echo ""
+echo -e "$KEY1\n$KEY2_1\n$KEY2_2"

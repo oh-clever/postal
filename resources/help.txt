@@ -1,0 +1,64 @@
+postal: a simple, command-line configurable http server for passing posted
+        data to existing programs.
+
+USAGE:
+  postal (-h|--help)
+  postal [(((-i|--ip) <IP> (-p|--port) <PORT>)|(-U|--unix-socket-file <FILE>))] \
+    [(-n|--name) <NAME>] [(-u|--urlencoded) <CFG>...] [(-m|--multipart) <CFG>...] \
+	[(-w|--workers <NUM>)]
+
+ARGUMENTS:
+  -h  --help                       Display this message.
+  -i  --ip                 <IP>    Listen on the ip address <IP>.
+  -m  --multipart          <CFG>   Enable a handler via the POST http-method
+                                   expecting an enctype of multipart/form-data.
+                                   See CFG for details.
+  -n  --name               <NAME>  Use a tempdir prefixed by <NAME> when storing
+                                   form data.
+  -p  --port               <PORT>  Listen on the port <PORT>.
+  -u  --urlencoded         <CFG>   Enable a handler via the POST http-method
+                                   expecting an enctype of
+                                   application/x-www-form-urlencoded.  See
+                                   CFG for details.
+  -U  --unix-socket-file   <FILE>  A unix socket file on which to listen instead of
+                                   an ip address and port number.
+  -w  --workers            <NUM>   The number of workers to allow. Set to 0 for
+                                   single-threaded. Defaults to 0.
+
+CFG:
+  "<D><MAX-REQUEST-BYTES><D><URL-PATH><D><HANDLER>[<D>PARAMETER[->VALIDATOR]]..."
+  format. The first D is a single character which defines where the parsing of each
+  field will stop and each subsequent will perform this field separation.
+  MAX-REQUEST-BYTES is the maximum number of bytes allowed in each request.
+  URL-PATH is the path from the host where the endpoint will be hosted.
+  HANDLER is the command that will be executed to handle the request. The request
+  parameters will be sent to the HANLDER as arguments. In multipart, any non "text/*"
+  content-type fields will be saved to a temporary directory and passed as a path
+  in the positional arguments. The exit code is expected to be 0 if OK and non-zero
+  if an error-state has occurred. The output to stdout is expected to be as follows.
+  The first line being the number of the http status code, the second to 'n' lines
+  until an empty line being any HTTP headers to include in the request (keep in mind
+  that the webserver will handle basic headers like "Content-Length"), and the rest
+  of the lines being the response body.
+  PARAMETER represents each parameter to be expected from the form followed by an
+  optional command for a VALIDATOR. These parameters will be expected in the exact
+  order specified by this section of the configuration. Processing of the request
+  will be terminated upon out-of-order or unexpected parameters.
+  VALIDATOR is a command that will be executed to validate the parameter right after
+  the value is read. All parameter values up to this point are passed, in order, to
+  the program as positional arguments. Any desired output should be printed to stderr,
+  as stdout will be disregarded, and the exit code is expected to be 0 if OK and 1 if
+  ERR.
+
+EXAMPLE HANDLER OUTPUT (200 OK):
+  200
+  Content-Type: text/html
+  
+  <!DOCTYPE html><html lang="en-US"><head><meta charset="UTF-8">
+  <title>Test</title></head><body><p>Hello, World!</p></body></html>
+
+EXAMPLE HANDLER OUTPUT (500 Internal Server Error):
+  500
+  Content-Type: text/plain
+  
+  An unexpected error occurred.

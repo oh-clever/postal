@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+SCRIPT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+if [ -z "$1" ]; then
+	>&2 echo "serve: <POSTALSCRIPTDIR> is required"
+	>&2 echo ""
+	>&2 echo "USAGE:"
+	>&2 echo "  serve <POSTALSCRIPTDIR>"
+
+	exit 1
+fi
+
+POSTALSCRIPTDIR="$1"
+
+function cleanup () {
+	if ! [ -e "$SCRIPT/../socket" ]; then
+		return 0
+	fi
+
+	rm "$SCRIPT/../socket"
+}
+
+trap cleanup EXIT ERR
+
+$POSTALSCRIPTDIR/postal -U "$SCRIPT/../socket" \
+	-u "|1028|/test|$SCRIPT/handle|key1->$SCRIPT/validate_key1|key2|key2" \
+	-m "|10000000|/image|$SCRIPT/handlemulti|name|image"
+
+cleanup

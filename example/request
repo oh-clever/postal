@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+SCRIPT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+curl -X POST \
+	--data-urlencode 'key1=value1' \
+	--data-urlencode 'key2=value2' \
+	--data-urlencode 'key2=value3' \
+	--unix-socket "$SCRIPT/../socket" \
+	"$@" \
+	http://127.0.0.1/test
